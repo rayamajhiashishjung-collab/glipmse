@@ -23,6 +23,20 @@ export function ReportDisplay({ report }: ReportDisplayProps) {
 
   const delta = scores.overall - benchmarks.industryAvgOverall;
 
+  // Aggregate vitals from all pages (use home page primarily)
+  const homePage = pages.find(p => p.type === 'home') || pages[0];
+  const vitals = homePage?.vitals || {};
+  const hasVitals = vitals.lcp || vitals.cls !== undefined || vitals.tbt || vitals.fcp;
+
+  // Collect all failing audits from all pages
+  const allFailingAudits = pages.flatMap(p => 
+    (p.failingAudits || []).map(audit => ({ ...audit, pageType: p.type }))
+  );
+  // Dedupe by audit id and sort by score
+  const uniqueAudits = Array.from(
+    new Map(allFailingAudits.map(a => [a.id, a])).values()
+  ).sort((a, b) => a.score - b.score).slice(0, 8);
+
   return (
     <div className="report-page">
       <header className="report-header-bar">
@@ -61,6 +75,69 @@ export function ReportDisplay({ report }: ReportDisplayProps) {
           <ScoreCard label="Accessibility" sublabel="WCAG" score={scores.accessibility} />
         </div>
 
+        {/* Core Web Vitals - Lighthouse Style */}
+        {hasVitals && (
+          <section className="report-section">
+            <h2>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: 8, verticalAlign: 'middle'}}>
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              Core Web Vitals
+            </h2>
+            <div className="vitals-grid">
+              <VitalCard 
+                label="LCP" 
+                fullName="Largest Contentful Paint"
+                value={vitals.lcp} 
+                unit="s"
+                divisor={1000}
+                thresholds={[2500, 4000]}
+              />
+              <VitalCard 
+                label="FCP" 
+                fullName="First Contentful Paint"
+                value={vitals.fcp} 
+                unit="s"
+                divisor={1000}
+                thresholds={[1800, 3000]}
+              />
+              <VitalCard 
+                label="TBT" 
+                fullName="Total Blocking Time"
+                value={vitals.tbt} 
+                unit="ms"
+                thresholds={[200, 600]}
+              />
+              <VitalCard 
+                label="CLS" 
+                fullName="Cumulative Layout Shift"
+                value={vitals.cls} 
+                decimals={3}
+                thresholds={[0.1, 0.25]}
+              />
+              {vitals.si && (
+                <VitalCard 
+                  label="SI" 
+                  fullName="Speed Index"
+                  value={vitals.si} 
+                  unit="s"
+                  divisor={1000}
+                  thresholds={[3400, 5800]}
+                />
+              )}
+              {vitals.inp && (
+                <VitalCard 
+                  label="INP" 
+                  fullName="Interaction to Next Paint"
+                  value={vitals.inp} 
+                  unit="ms"
+                  thresholds={[200, 500]}
+                />
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Quick Stats */}
         <div className="quick-stats">
           <div className="quick-stat">
@@ -80,6 +157,35 @@ export function ReportDisplay({ report }: ReportDisplayProps) {
             <span className="quick-stat-label">Total Issues</span>
           </div>
         </div>
+
+        {/* Lighthouse Audits - Failing */}
+        {uniqueAudits.length > 0 && (
+          <section className="report-section">
+            <h2>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: 8, verticalAlign: 'middle'}}>
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Lighthouse Diagnostics
+            </h2>
+            <div className="audits-list">
+              {uniqueAudits.map((audit, index) => (
+                <div key={index} className="audit-item">
+                  <div className={`audit-score ${audit.score < 0.5 ? 'fail' : 'warn'}`}>
+                    {Math.round(audit.score * 100)}
+                  </div>
+                  <div className="audit-content">
+                    <div className="audit-title">{audit.title}</div>
+                    {audit.description && (
+                      <div className="audit-desc">{audit.description}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Benchmark Note */}
         <div className="benchmark-note">
@@ -195,25 +301,110 @@ function ScoreCard({ label, sublabel, score }: { label: string; sublabel: string
   );
 }
 
+interface VitalCardProps {
+  label: string;
+  fullName: string;
+  value?: number;
+  unit?: string;
+  divisor?: number;
+  decimals?: number;
+  thresholds: [number, number]; // [good, poor] - below first is good, above second is poor
+}
+
+function VitalCard({ label, fullName, value, unit = '', divisor = 1, decimals = 1, thresholds }: VitalCardProps) {
+  if (value === undefined) return null;
+  
+  const displayValue = divisor > 1 ? (value / divisor).toFixed(decimals) : 
+                       decimals ? value.toFixed(decimals) : Math.round(value);
+  
+  const actualValue = divisor > 1 ? value / divisor : value;
+  const thresholdGood = divisor > 1 ? thresholds[0] / divisor : thresholds[0];
+  const thresholdPoor = divisor > 1 ? thresholds[1] / divisor : thresholds[1];
+  
+  let status: 'good' | 'needs-improvement' | 'poor';
+  if (actualValue <= thresholdGood) {
+    status = 'good';
+  } else if (actualValue <= thresholdPoor) {
+    status = 'needs-improvement';
+  } else {
+    status = 'poor';
+  }
+  
+  return (
+    <div className={`vital-card ${status}`}>
+      <div className="vital-value">
+        {displayValue}
+        {unit && <span className="vital-unit">{unit}</span>}
+      </div>
+      <div className="vital-label">{label}</div>
+      <div className="vital-fullname">{fullName}</div>
+      <div className={`vital-status ${status}`}>
+        {status === 'good' && '✓ Good'}
+        {status === 'needs-improvement' && '⚠ Needs Work'}
+        {status === 'poor' && '✗ Poor'}
+      </div>
+    </div>
+  );
+}
+
 function PageCard({ page }: { page: PageResult }) {
   const scores = page.scores || { performance: 0, seo: 0, accessibility: 0, bestPractices: 0 };
   const vitals = page.vitals || {};
+  const evidence = page.evidence || {};
+  
+  const getScoreClass = (s: number) => {
+    if (s < 0) return 'unknown';
+    if (s >= 90) return 'good';
+    if (s >= 50) return 'needs-improvement';
+    return 'poor';
+  };
   
   return (
     <div className="page-card">
       <div className="page-card-type">{(page.type || 'page').toUpperCase()}</div>
       <div className="page-card-url">{page.url}</div>
-      <div className="page-card-scores">
-        <span>Perf: {scores.performance || 0}</span>
-        <span>SEO: {scores.seo || 0}</span>
-        <span>A11y: {scores.accessibility || 0}</span>
+      
+      {/* Lighthouse-style score circles */}
+      <div className="page-scores-row">
+        <div className={`page-score-circle ${getScoreClass(scores.performance)}`}>
+          <span>{scores.performance > 0 ? scores.performance : '—'}</span>
+          <small>Perf</small>
+        </div>
+        <div className={`page-score-circle ${getScoreClass(scores.seo)}`}>
+          <span>{scores.seo > 0 ? scores.seo : '—'}</span>
+          <small>SEO</small>
+        </div>
+        <div className={`page-score-circle ${getScoreClass(scores.accessibility)}`}>
+          <span>{scores.accessibility > 0 ? scores.accessibility : '—'}</span>
+          <small>A11y</small>
+        </div>
+        <div className={`page-score-circle ${getScoreClass(scores.bestPractices)}`}>
+          <span>{scores.bestPractices > 0 ? scores.bestPractices : '—'}</span>
+          <small>BP</small>
+        </div>
       </div>
-      {vitals.lcp && (
-        <div className="page-card-vitals">
-          <span>LCP: {(vitals.lcp / 1000).toFixed(1)}s</span>
-          {vitals.cls !== undefined && <span>CLS: {vitals.cls.toFixed(3)}</span>}
+      
+      {/* Vitals */}
+      {(vitals.lcp || vitals.cls !== undefined || vitals.tbt) && (
+        <div className="page-vitals-row">
+          {vitals.lcp && <span className="page-vital">LCP: {(vitals.lcp / 1000).toFixed(1)}s</span>}
+          {vitals.cls !== undefined && <span className="page-vital">CLS: {vitals.cls.toFixed(3)}</span>}
+          {vitals.tbt && <span className="page-vital">TBT: {vitals.tbt}ms</span>}
         </div>
       )}
+      
+      {/* Evidence Pills */}
+      {Object.keys(evidence).length > 0 && (
+        <div className="page-evidence">
+          {evidence.platform && evidence.platform !== 'Unknown' && (
+            <span className="evidence-pill platform">{evidence.platform}</span>
+          )}
+          {evidence.hasShipping && <span className="evidence-pill trust">Shipping ✓</span>}
+          {evidence.hasReturns && <span className="evidence-pill trust">Returns ✓</span>}
+          {evidence.hasGuarantee && <span className="evidence-pill trust">Guarantee ✓</span>}
+        </div>
+      )}
+      
       {page.error && <div className="page-card-error">⚠️ {page.error}</div>}
     </div>
   );
