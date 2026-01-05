@@ -32,35 +32,27 @@ export function HomePage() {
   return (
     <div className="home-page">
       <header className="header">
-        <div className="logo">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <defs>
-              <linearGradient id="eye-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#6366f1" />
-                <stop offset="100%" stopColor="#8b5cf6" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="16" cy="16" rx="14" ry="9" stroke="url(#eye-gradient)" strokeWidth="2.5" fill="none" />
-            <circle cx="16" cy="16" r="5" fill="url(#eye-gradient)" />
-            <circle cx="18" cy="14" r="1.5" fill="white" />
-          </svg>
+        <a href="/" className="logo">
+          <div className="logo-icon"></div>
           <span className="logo-text">Glimpse</span>
-        </div>
+        </a>
       </header>
 
       <main className="hero">
         <div className="hero-badge">
-          <span>✨ AI-Powered Website Audits</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          AI-Powered Website Audits
         </div>
         
         <h1 className="hero-title">
-          Get a <span className="gradient-text">complete picture</span><br />
-          of your website's performance
+          Find what's <span className="gradient-text">hurting</span><br />
+          your conversions
         </h1>
         
         <p className="hero-subtitle">
-          Glimpse analyzes your site's UX, conversion potential, accessibility, and SEO.
-          Get actionable insights backed by real evidence.
+          Get a complete UX, performance, and conversion audit of your website in seconds. Powered by real data and AI insights.
         </p>
 
         <form className="audit-form" onSubmit={handleSubmit}>
@@ -69,7 +61,7 @@ export function HomePage() {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter your website URL (e.g., mystore.com)"
+              placeholder="Enter your website URL..."
               disabled={isLoading}
               className={error ? 'input-error' : ''}
             />
@@ -88,9 +80,24 @@ export function HomePage() {
         </form>
 
         <div className="trust-badges">
-          <span>🔒 Secure analysis</span>
-          <span>⚡ Results in ~30 seconds</span>
-          <span>📊 Evidence-based insights</span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" width="16" height="16">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            No signup required
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" width="16" height="16">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Results in ~30 seconds
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" width="16" height="16">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Evidence-based insights
+          </span>
         </div>
       </main>
 
@@ -98,45 +105,65 @@ export function HomePage() {
         <h2>What We Analyze</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">📱</div>
-            <h3>Mobile Performance</h3>
-            <p>Core Web Vitals, load times, and mobile-first metrics from Google PageSpeed Insights.</p>
+            <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" width="26" height="26">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+              </svg>
+            </div>
+            <h3>Performance</h3>
+            <p>Core Web Vitals, load times, and mobile-first metrics from Google PageSpeed.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🎯</div>
+            <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" width="26" height="26">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+              </svg>
+            </div>
+            <h3>User Experience</h3>
+            <p>Accessibility, navigation patterns, and usability signals that affect engagement.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" width="26" height="26">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
             <h3>Conversion Signals</h3>
-            <p>Trust badges, CTAs, checkout flow, and persuasion elements that drive sales.</p>
+            <p>Trust badges, CTAs, checkout optimization, and persuasion elements.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">♿</div>
-            <h3>Accessibility</h3>
-            <p>WCAG compliance checks ensuring your site works for everyone.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🔍</div>
+            <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" width="26" height="26">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </div>
             <h3>SEO Health</h3>
-            <p>Technical SEO factors that affect your search visibility.</p>
+            <p>Technical SEO factors, meta tags, and crawlability that affect search rankings.</p>
           </div>
         </div>
       </section>
 
-      <section className="how-it-works">
+      <section className="how-it-works" id="how-it-works">
         <h2>How It Works</h2>
         <div className="steps">
           <div className="step">
             <div className="step-number">1</div>
             <h3>Enter Your URL</h3>
-            <p>Just paste your website address. We accept any valid domain.</p>
+            <p>Paste any website URL. We accept domains with or without https.</p>
           </div>
           <div className="step">
             <div className="step-number">2</div>
-            <h3>AI Scans Key Pages</h3>
+            <h3>AI Scans Pages</h3>
             <p>We analyze your homepage, product pages, collections, and cart.</p>
           </div>
           <div className="step">
             <div className="step-number">3</div>
             <h3>Get Your Report</h3>
-            <p>Receive prioritized issues with evidence-backed fixes.</p>
+            <p>Receive prioritized issues with evidence-backed recommendations.</p>
           </div>
         </div>
       </section>
@@ -147,4 +174,3 @@ export function HomePage() {
     </div>
   );
 }
-

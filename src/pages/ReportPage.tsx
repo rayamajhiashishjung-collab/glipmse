@@ -43,7 +43,6 @@ export function ReportPage() {
   useEffect(() => {
     fetchAudit();
     
-    // Poll every 2 seconds if not done/error
     const interval = setInterval(() => {
       if (status === 'loading' || status === 'queued' || status === 'running') {
         fetchAudit();
@@ -59,17 +58,7 @@ export function ReportPage() {
       <div className="report-page">
         <header className="header">
           <Link to="/" className="logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <defs>
-                <linearGradient id="eye-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-              <ellipse cx="16" cy="16" rx="14" ry="9" stroke="url(#eye-gradient)" strokeWidth="2.5" fill="none" />
-              <circle cx="16" cy="16" r="5" fill="url(#eye-gradient)" />
-              <circle cx="18" cy="14" r="1.5" fill="white" />
-            </svg>
+            <div className="logo-icon"></div>
             <span className="logo-text">Glimpse</span>
           </Link>
         </header>
@@ -77,9 +66,7 @@ export function ReportPage() {
         <main className="progress-container">
           <div className="progress-card">
             <div className="progress-icon">
-              <svg className="spinner-large" viewBox="0 0 50 50">
-                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="80 40" />
-              </svg>
+              <div className="spinner-large"></div>
             </div>
             
             <h1>Analyzing Your Website</h1>
@@ -109,17 +96,7 @@ export function ReportPage() {
       <div className="report-page">
         <header className="header">
           <Link to="/" className="logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <defs>
-                <linearGradient id="eye-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-              <ellipse cx="16" cy="16" rx="14" ry="9" stroke="url(#eye-gradient)" strokeWidth="2.5" fill="none" />
-              <circle cx="16" cy="16" r="5" fill="url(#eye-gradient)" />
-              <circle cx="18" cy="14" r="1.5" fill="white" />
-            </svg>
+            <div className="logo-icon"></div>
             <span className="logo-text">Glimpse</span>
           </Link>
         </header>
@@ -151,4 +128,3 @@ function getProgressMessage(progress: number): string {
   if (progress < 90) return 'Analyzing results...';
   return 'Generating report...';
 }
-
