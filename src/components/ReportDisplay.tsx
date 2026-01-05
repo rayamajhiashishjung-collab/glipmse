@@ -12,17 +12,7 @@ export function ReportDisplay({ report }: ReportDisplayProps) {
     <div className="report-page">
       <header className="header">
         <Link to="/" className="logo">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <defs>
-              <linearGradient id="eye-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#6366f1" />
-                <stop offset="100%" stopColor="#8b5cf6" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="16" cy="16" rx="14" ry="9" stroke="url(#eye-gradient)" strokeWidth="2.5" fill="none" />
-            <circle cx="16" cy="16" r="5" fill="url(#eye-gradient)" />
-            <circle cx="18" cy="14" r="1.5" fill="white" />
-          </svg>
+          <div className="logo-icon"></div>
           <span className="logo-text">Glimpse</span>
         </Link>
         <Link to="/" className="btn-secondary">New Audit</Link>
@@ -43,7 +33,7 @@ export function ReportDisplay({ report }: ReportDisplayProps) {
 
         {/* Score Cards */}
         <section className="scores-section">
-          <div className="score-card score-card-main">
+          <div className="score-card-main">
             <div className="score-circle" data-score={getScoreClass(scores.overall)}>
               <span className="score-value">{scores.overall}</span>
             </div>
@@ -216,4 +206,3 @@ function getScoreClass(score: number): string {
   if (score >= 50) return 'needs-improvement';
   return 'poor';
 }
-
