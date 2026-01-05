@@ -85,19 +85,24 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       };
     }
 
-    // Fire-and-forget: trigger run-audit function
-    // Use Netlify's internal function URL or SITE_URL
+    // Trigger background function
     const siteUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || 'http://localhost:8888';
-    const runAuditUrl = `${siteUrl}/.netlify/functions/run-audit`;
+    const runAuditUrl = `${siteUrl}/.netlify/functions/run-audit-background`;
     
-    // Don't await - fire and forget
-    fetch(runAuditUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ auditId }),
-    }).catch((err) => {
-      console.error('Failed to trigger run-audit:', err);
-    });
+    console.log('Triggering run-audit-background at:', runAuditUrl);
+    
+    // Await the trigger to ensure it starts
+    try {
+      const triggerResponse = await fetch(runAuditUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auditId }),
+      });
+      console.log('Background function triggered, status:', triggerResponse.status);
+    } catch (err) {
+      console.error('Failed to trigger run-audit-background:', err);
+      // Don't fail the request - the audit is created, background will retry
+    }
 
     const response: StartAuditResponse = { auditId };
     
